@@ -17,7 +17,7 @@ cd ${_MYDIR}/../puppet
 # Puppet is not really efficient with installing many packages
 PREINSTALL=1
 if [[ ${PREINSTALL} -eq 1 ]]; then
-    cp /data/puppet/yumrepos/*.repo /etc/yum.repos.d/ -Rvf
+    cp ../yumrepos/*.repo /etc/yum.repos.d/ -Rvf
     yum install -y epel-release
     yum install -y ncdu telnet unzip sysstat htop lsof vim policycoreutils-devel httpd mod_ssl yum-plugin-priorities
 
