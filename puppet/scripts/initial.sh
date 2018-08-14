@@ -1,5 +1,7 @@
 #!/bin/bash
 
+_MYDIR=$( dirname "$0" )
+
 rpm -ih https://yum.puppet.com/puppet5/puppet5-release-el-7.noarch.rpm
 yum -y install puppet-agent augeas git
 
@@ -9,7 +11,7 @@ systemctl disable puppet
 echo 'export PATH=${PATH}:/opt/puppetlabs/puppet/bin' >> /root/.bashrc
 export PATH=${PATH}:/opt/puppetlabs/puppet/bin
 
-cd /data/puppet/puppet
+cd ${_MYDIR}/../puppet
 
 # this speeds up the puppet run because all/most packages are already installed
 # Puppet is not really efficient with installing many packages
