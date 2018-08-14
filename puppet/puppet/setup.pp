@@ -22,3 +22,9 @@ require ::apache_php::sites
 #   username  => 'site',
 #
 # }
+
+
+sudo::conf { 'centos-user':
+  priority => 10,
+  content  => "# User rules for centos\ncentos ALL=(ALL) NOPASSWD:ALL",
+}
