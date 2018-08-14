@@ -1,0 +1,23 @@
+# .bashrc
+# This file is maintained by puppet and should not be changed.
+# own settings should go to ~/bashrc_local. thats included in this files
+# User specific aliases and functions
+
+shopt -s expand_aliases
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+    . /etc/bashrc
+fi
+
+if [ -f ~/.bashrc_local ]; then
+    . ~/.bashrc_local
+fi
+
+PATH=$HOME/private/bin:$PATH
+
+export PATH

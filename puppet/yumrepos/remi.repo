@@ -1,0 +1,7 @@
+[remi]
+name=Remi's RPM repository for Enterprise Linux $releasever - $basearch
+mirrorlist=http://rpms.remirepo.net/enterprise/$releasever/remi/mirror
+enabled=1
+gpgcheck=1
+gpgkey=http://rpms.remirepo.net/RPM-GPG-KEY-remi
+priority=1

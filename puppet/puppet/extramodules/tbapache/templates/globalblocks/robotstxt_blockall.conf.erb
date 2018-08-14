@@ -1,0 +1,18 @@
+
+# Exclude all robots
+<Location "/robots.txt">
+    SetHandler None
+    <IfModule proxy_module>
+        ProxyPass !
+    </IfModule>
+</Location>
+
+<Directory /var/www/robots/>
+        Options SymLinksIfOwnerMatch
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+</Directory>
+
+Alias /robots.txt /var/www/robots/blockall-robots.txt
+# End Exclude all robots

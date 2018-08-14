@@ -1,0 +1,6 @@
+LoadModule version_module modules/mod_version.so
+<IfVersion >= 2.4.19>
+    LogFormat "%v %V:%p %h %l %u [%{%d/%b/%Y:%T}t.%{msec_frac}t %{%z}t] \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" \"%{X-Forwarded-For}i\" %I %O %X %D (%{ratio}n%%)" cvhost_combined_global
+
+    GlobalLog <%= @logroot %>/global_access.log cvhost_combined_global
+</IfVersion>

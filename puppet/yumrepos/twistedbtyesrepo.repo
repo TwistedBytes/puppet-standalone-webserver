@@ -1,0 +1,6 @@
+[twistedbtyesrepo]
+name=twistedbtyes centos 7 repo
+baseurl=http://repository.twistedbytes.eu/centos/$releasever/
+enabled=1
+gpgcheck=0
+priority=1

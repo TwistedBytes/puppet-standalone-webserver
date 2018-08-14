@@ -1,0 +1,26 @@
+# Compression
+## BrotliCompressionLevel: 0-11 (default: 11)
+BrotliCompressionQuality 5
+## BrotliWindowSize: 10-24 (default: 22)
+BrotliCompressionWindow 22
+
+# Logging
+# Filter note
+BrotliFilterNote Input  brotli_in
+BrotliFilterNote Output brotli_out
+BrotliFilterNote Ratio  brotli_ratio
+
+#LogFormat '"%r" %{brotli_out}n/%{brotli_in}n (%{brotli_ratio}n)' brotli
+#CustomLog /var/log/httpd/brotli_access.log brotli
+
+# Output filter
+AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/css text/xml
+AddOutputFilterByType BROTLI_COMPRESS text/css
+AddOutputFilterByType BROTLI_COMPRESS application/x-javascript application/javascript
+AddOutputFilterByType BROTLI_COMPRESS application/rss+xml
+AddOutputFilterByType BROTLI_COMPRESS application/xml
+AddOutputFilterByType BROTLI_COMPRESS application/json
+
+# Global output filer if necessary.
+# SetOutputFilter BROTLI_COMPRESS
+# SetEnvIfNoCase Request_URI \.txt$ no-br

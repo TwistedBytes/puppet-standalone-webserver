@@ -1,0 +1,15 @@
+#!/bin/bash
+
+ROOT_UID=0
+if [ "$UID" -ne "$ROOT_UID" ]; then
+	echo "   Must be run as root, please use sudo $0."
+	echo "   quitting..."
+	exit 0
+fi
+
+SOCKET_NAME=<%= @vhostname %>
+PHP_VERSION=$1
+
+/usr/local/bin/php-version-switcher.sh ${SOCKET_NAME} ${PHP_VERSION}
+
+echo "   done."

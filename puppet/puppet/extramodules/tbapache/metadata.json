@@ -1,0 +1,21 @@
+{
+  "name": "twistedbytes-tbapache",
+  "version": "0.1.0",
+  "author": "twistedbytes",
+  "summary": null,
+  "license": "Apache 2.0",
+  "source": "",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {
+      "name": "puppetlabs-apache"
+    },
+    {
+      "name": "movingops-apache_php"
+    },
+    {
+      "name": "puppetlabs-stdlib"
+    }
+  ]
+}

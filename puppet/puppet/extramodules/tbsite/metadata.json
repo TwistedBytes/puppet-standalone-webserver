@@ -1,0 +1,15 @@
+{
+  "name": "twistedbytes-tbsite",
+  "version": "0.1.0",
+  "author": "twistedbytes",
+  "summary": null,
+  "license": "Apache 2.0",
+  "source": "",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {"name": "example42-yum"},
+    {"name": "puppetlabs-apt"},
+    {"name": "puppetlabs-concat"}
+  ]
+}

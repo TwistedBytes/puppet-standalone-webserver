@@ -1,0 +1,32 @@
+<?php
+$cfg['blowfish_secret'] = '+DFCqy%xB:3IYEpMep9ZUgBBKLerVIDX0RkJ9M72MTI+W6xZ2JWeyl3Rq6ZEP0Ym5S%xz7FT+R^@rjGfD8QibA73YzswBX^8Mc7Z';
+
+/*
+ * Servers configuration
+ */
+$i = 0;
+
+/*
+ * First server
+ */
+$i++;
+/* Authentication type */
+$cfg['Servers'][$i]['auth_type'] = 'cookie';
+/* Server parameters */
+$cfg['Servers'][$i]['extension'] = 'mysqli';
+$cfg['Servers'][$i]['host'] = '<%= @pma_databaseip %>';
+$cfg['Servers'][$i]['connect_type'] = 'tcp';
+$cfg['Servers'][$i]['compress'] = false;
+$cfg['Servers'][$i]['AllowNoPassword'] = false;
+$cfg['Servers'][$i]['hide_db'] = 'information_schema';
+
+
+$cfg['UploadDir'] = '';
+$cfg['SaveDir'] = '';
+
+$cfg['MaxNavigationItems'] = 200;
+$cfg['VersionCheck'] = false;
+$cfg['PmaNoRelation_DisableWarning'] = true;
+$cfg['SuhosinDisableWarning'] = true;
+$cfg['LoginCookieValidity'] = 3600;
+

@@ -1,0 +1,14 @@
+{
+  "name": "twistedbytes-tbphp",
+  "version": "0.1.0",
+  "author": "twistedbytes",
+  "summary": null,
+  "license": "Apache 2.0",
+  "source": "",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {"name": "puppet-php"},
+    {"name": "twistedbytes-tbsystemd"}
+  ]
+}

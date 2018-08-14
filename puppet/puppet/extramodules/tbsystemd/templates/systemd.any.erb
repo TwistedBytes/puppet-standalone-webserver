@@ -1,0 +1,13 @@
+### MANAGED BY PUPPET ###
+<% @content.map do |k,v| -%>
+<%   if v.is_a?(Hash) -%>
+[<%=   k %>]
+<%     v.map do |ki, vi| -%>
+<%       if vi == true or v == '' -%>
+<%=        ki %>
+<%       elsif ![nil, '', :undef].include?(vi) -%>
+<%=        ki %>=<%= vi %>
+<%       end -%>
+<%     end -%>
+<%   end %>
+<% end -%>
