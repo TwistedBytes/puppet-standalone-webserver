@@ -1,0 +1,4 @@
+.idea
+.vagrant
+/puppet/puppet/.*
+/puppet/puppet/modules/*
