@@ -52,8 +52,13 @@ else
 fi
 
 time puppet apply --modulepath=$PWD/modules/:$PWD/extramodules/ setup.pp
+
+if [[ 0 -eq 1 ]]; then
+
 cat << 'EOT' > /var/www/vhosts/default/site/docroot/index.php
 <?php
 
 phpinfo();
 EOT
+
+fi
