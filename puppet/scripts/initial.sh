@@ -13,6 +13,11 @@ export PATH=${PATH}:/opt/puppetlabs/puppet/bin
 
 cd ${_MYDIR}/../puppet
 
+mkdir -p /etc/puppetlabs/code/hieradata/
+alias cp=cp
+cp -f setup.yaml /etc/puppetlabs/code/hieradata/
+cp -f hiera.yaml /etc/puppetlabs/puppet/
+
 # this speeds up the puppet run because all/most packages are already installed
 # Puppet is not really efficient with installing many packages
 PREINSTALL=1
@@ -47,3 +52,8 @@ else
 fi
 
 time puppet apply --modulepath=$PWD/modules/:$PWD/extramodules/ setup.pp
+cat << 'EOT' > /var/www/vhosts/default/site/docroot/index.php
+<?php
+
+phpinfo();
+EOT

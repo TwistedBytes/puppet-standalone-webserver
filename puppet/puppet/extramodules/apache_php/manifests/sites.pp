@@ -3,7 +3,7 @@ class apache_php::sites (
 ) {
 
   $defaults = hiera_hash('apache_php::sites::defaults', {})
-  $proftpd_active = hiera('apache_php::proftpd', true)
+  $proftpd_active = hiera('apache_php::proftpd', false)
 
   if $proftpd_active {
     class { 'tbproftpd': }

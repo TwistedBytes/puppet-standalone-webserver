@@ -1,6 +1,5 @@
 require ::tbsite::packages
 require ::apache_php::apache
-require ::apache_php::customers
 require ::apache_php::sites
 
 

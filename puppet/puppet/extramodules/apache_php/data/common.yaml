@@ -7,34 +7,3 @@ lookup_options:
     merge:
       strategy: deep
       merge_hash_arrays: true
-
-apache_php::phpfpmvhost::pmdefaults:
-  pm: ondemand
-  pm_start_servers: 1
-  pm_min_spare_servers: 1
-  pm_max_spare_servers: 2
-  pm_max_children: 5
-  pm_max_requests: 4000
-  pm_process_idle_timeout: 20s
-
-apache_php::proftpd: false
-
-apache_php::apachenew: true
-apache_php::phpfpmvhost::php56: false
-
-apache_php::customers::customers:
-  twistedbytes:
-    homedir: '/var/www/vhosts/TB01-001'
-    username: 'TB01-001'
-    convert_proftpd: false
-
-apache_php::sites::defaults:
-  customer: 'twistedbytes'
-  options:
-    php7: 72
-    php_default: 72
-    php_default_force: true
-
-apache_php::sites::sites:
-  site:
-    vhostprio: 10

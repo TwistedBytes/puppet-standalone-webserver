@@ -1,0 +1,25 @@
+apache_php::phpfpmvhost::pmdefaults:
+  pm: ondemand
+  pm_start_servers: 1
+  pm_min_spare_servers: 1
+  pm_max_spare_servers: 2
+  pm_max_children: 5
+  pm_max_requests: 4000
+  pm_process_idle_timeout: 20s
+
+apache_php::proftpd: false
+
+apache_php::apachenew: true
+apache_php::phpfpmvhost::php56: false
+
+apache_php::sites::defaults:
+  options:
+    php7: 72
+    php_default: 72
+    php_default_force: true
+
+apache_php::sites::sites:
+  default:
+    vhostparentdir: /var/www/vhosts
+    vhostbasedir: /var/www/vhosts/default
+    vhostprio: 10

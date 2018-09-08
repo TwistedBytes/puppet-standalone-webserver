@@ -1,4 +1,5 @@
-# ssl hash:
+# ssl hash:git clone https://github.com/TwistedBytes/puppet-standalone-webserver.git
+
 #{
 #   ssl => true,
 #   redirectnon-ssl => false

@@ -51,7 +51,7 @@ Vagrant.configure(2) do |config|
 
     # -- provisioning section
     # node.vm.provision "shell", run: 'always', inline: '/usr/local/bin/autorun.sh'
-    # node.vm.provision "shell", inline: 'time /data/puppet/scripts/initial.sh'
+    node.vm.provision "shell", inline: 'time /data/puppet/scripts/initial.sh'
 
     # -- provisioning section
 

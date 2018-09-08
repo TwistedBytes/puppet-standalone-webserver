@@ -28,32 +28,43 @@ define apache_php::site (
   $create_default_sa      = false,
   $write_backuppath       = undef,
   $log_format_name        = undef,
-  $nobackup_logs          = false,
-  $supervisord            = false,
-  $cronlogdir             = false,
   $replace_config_var     = false,
   $custom                 = [],
   $htpasswdfile           = undef,
+  $vhostbasedir           = undef,
+  $vhostparentdir         = undef,
 ) {
-  $c1 = hiera_hash('apache_php::customers::customers')
-  $customerhash = $c1[$customer]
-
-  realize(Apache_php::User[$customer])
-
-  $real_user_hash = $user_hash_tbpw_context ? {
-    undef   => $user_hash,
-    default => tbpassword_getpassline($user_hash_tbpw_context, $vhostname)
-  }
 
   # username max 32 chars long, cut the end if needed
   $vhost_username = regsubst($vhostname, '^(.{32})(.*)', '\1')
-  $vhost_basedir = "${customerhash['homedir']}/${vhostname}"
+
+  if $customer != undef {
+    $c1 = hiera_hash('apache_php::customers::customers')
+    $customerhash = $c1[$customer]
+
+    realize(Apache_php::User[$customer])
+
+    $vhost_usergroup = $customerhash['username']
+    $vhost_parentdir = "${customerhash['homedir']}/${vhostname}"
+
+    require ::apache_php::customers
+  } else {
+    $vhost_usergroup = $vhost_username
+    $vhost_parentdir = $vhostparentdir
+  }
+
+  $real_user_hash = $user_hash
+
+  $vhost_basedir = $vhostbasedir ? {
+    undef   => "${customerhash['homedir']}/${vhostname}",
+    default => $vhostbasedir,
+  }
 
   apache_php::user { "$vhostname":
     ensure              => $ensure,
-    homedir             => "${vhost_basedir}",
+    homedir             => $vhost_basedir,
     username            => $vhost_username,
-    gid                 => "${customerhash['username']}",
+    gid                 => $vhost_usergroup,
     uid                 => $uid,
     user_hash           => $real_user_hash,
     user_ssh_keys       => $user_ssh_keys,
@@ -61,54 +72,12 @@ define apache_php::site (
     convert_proftpd     => $convert_proftpd,
   }
 
-  if ($addclustershare) {
-    $glusterbase = hiera('tbglusterfs::mount::mountdir')
-
-    tbglusterfs::bindmountshare { "${vhostname}-clustershare":
-      ensure => $ensure,
-      src    => "${glusterbase}/${vhostname}",
-      dst    => "${vhost_basedir}/clustershare",
-      owner  => $vhost_username,
-      group  => "${customerhash['username']}",
-    }
-  }
-
   if ($ensure == 'present') {
     apache_php::tbsite::dirstructure { $vhostname:
-      basedir   => "${customerhash['homedir']}",
+      basedir   => $vhost_parentdir,
       vhostname => $vhostname,
       uid       => $vhost_username,
-      gid       => "${customerhash['username']}",
-    }
-
-    if $nobackup_logs {
-      file { "${vhost_basedir}/logs/.nobackup":
-        ensure => 'file',
-      }
-    }
-
-    if $supervisord {
-      file { "${vhost_basedir}/private/supervisor.d":
-        ensure => 'directory',
-        owner  => $vhost_username,
-        mode   => '0751',
-        group  => "${customerhash['username']}",
-      }
-      file { "${vhost_basedir}/logs/supervisord":
-        ensure => 'directory',
-        owner  => $vhost_username,
-        mode   => '0751',
-        group  => "${customerhash['username']}",
-      }
-    }
-
-    if $cronlogdir {
-      file { "${vhost_basedir}/logs/cron":
-        ensure => 'directory',
-        owner  => $vhost_username,
-        mode   => '0751',
-        group  => "${customerhash['username']}",
-      }
+      gid       => $vhost_usergroup,
     }
 
     $require_dirstructure = Apache_php::Tbsite::Dirstructure[$vhostname]
@@ -116,11 +85,7 @@ define apache_php::site (
     $require_dirstructure = undef
   }
 
-  if ( $create_default_sa == true ) {
-    $real_serveraliases = union(["${vhostname}.${::fqdn}"], $serveraliases)
-  } else {
-    $real_serveraliases = $serveraliases
-  }
+  $real_serveraliases = $serveraliases
 
   $servertype = pick($options['servertype'], 'apache')
   $usephp = pick($options['php'], true)
@@ -160,7 +125,7 @@ define apache_php::site (
       file { $phpswitchscript:
         ensure  => 'file',
         owner   => $vhost_username,
-        group   => "${customerhash['username']}",
+        group   => $vhost_usergroup,
         mode    => '0700',
         content => template("${module_name}/switch-php.sh.erb"),
         require => $require_dirstructure,
@@ -201,7 +166,7 @@ define apache_php::site (
         ensure  => 'link',
         replace => $php7_switcher_replace,
         owner   => $vhost_username,
-        group   => "${customerhash['username']}",
+        group   => $vhost_usergroup,
         target  => $userbin_link,
       }
 
@@ -234,26 +199,6 @@ define apache_php::site (
     $nginx_fcgi = $fcgi_listen
   }
   if ($ensure == 'present') {
-    if ($servertype == 'nginx') {
-      include ::tbnginx
-
-      apache_php::nginxvhost { "$vhostname@${::fqdn}":
-        vhostname     => $vhostname,
-        vhostbase     => "${vhost_basedir}",
-        priority      => $vhostprio,
-        serveraliases => $real_serveraliases,
-        uid           => $vhost_username,
-        gid           => "${customerhash['username']}",
-        ssl           => $ssl,
-        options       => {
-          php             => $usephp,
-          php_fcgi        => $nginx_fcgi,
-          frameworkconfig => pick($options['frameworkconfig'], 'none'),
-          docroot_symlink => $docroot_symlink,
-        }
-        ,
-      }
-    }
 
     if ($servertype == 'apache') {
       include apache_php::apache
@@ -265,10 +210,10 @@ define apache_php::site (
         ip                 => $vhost_ip,
         priority           => $vhostprio,
         serveraliases      => $real_serveraliases,
-        vhostbase          => "${vhost_basedir}",
+        vhostbase          => $vhost_basedir,
         require            => $require_dirstructure,
         uid                => $vhost_username,
-        gid                => "${customerhash['username']}",
+        gid                => $vhost_usergroup,
         ssl                => $ssl,
         ssl_alts           => $ssl_alts,
         aliases            => $aliases,
@@ -307,29 +252,15 @@ define apache_php::site (
           ensure                => $ensure,
           vhostname             => $vhostname,
           listen                => $fcgi_listen,
-          vhostbase             => "${vhost_basedir}",
+          vhostbase             => $vhost_basedir,
           runasuid              => $vhost_username,
-          runasgid              => "${customerhash['username']}",
+          runasgid              => $vhost_usergroup,
           require               => $require_dirstructure,
           pmdefaults            => $pmdefaults,
           php_values_override   => $php_values_override,
           php7                  => $php7,
           php7_switcher_replace => $php7_switcher_replace,
         }
-      }
-    }
-
-    if $phptype == 'hhvm' {
-      include tbhhvm
-      include tbsupervisord
-
-      tbhhvm::vhost { "$vhostname":
-        ensure    => $ensure,
-        port      => "${fcgi_port}",
-        runasuid  => $vhost_username,
-        runasgid  => "${customerhash['username']}",
-        vhostbase => "${vhost_basedir}",
-        require   => Class['hhvm::package'],
       }
     }
 
@@ -349,38 +280,6 @@ define apache_php::site (
       }
     }
   }
-
-  /*
-  if $ssh_login == true {
-    tbjailkit::siteshell { "${vhost_username}":
-      ensure  => $ensure,
-      homedir => "${vhost_basedir}",
-      owner   => $vhost_username,
-      group   => "${customerhash['username']}",
-      require => Apache_php::User["$vhostname"]
-    }
-    User <| title == $vhost_username |> {
-      shell => $shell,
-    }
-  } else {
-    if ( $jail_chroot == true ) {
-      tbjailkit::websitejail { "$vhostname":
-        username      => $vhostname,
-        group         => $customerhash['username'],
-        chroot_parent => $customerhash['homedir'],
-        chroot        => "${customerhash['homedir'] }/${ vhostname }",
-      }
-    } else {
-      tbjailkit::websitejail { "$vhostname":
-        ensure        => 'absent',
-        username      => $vhostname,
-        group         => $customerhash['username'],
-        chroot_parent => $customerhash['homedir'],
-        chroot        => "${vhost_basedir}",
-      }
-    }
-  }
-  */
 
   validate_hash($databases)
   if (!empty($databases)) {
@@ -405,53 +304,6 @@ define apache_php::site (
     }
 
     create_resources('apache_php::db::simple', $databases, $dbdefaults)
-  }
-
-  if ($options) and ($options['wordpressaide'] == true) {
-    ::tbaide::wordpress::site { $vhostname:
-      basedir => $vhost_basedir,
-
-    }
-  }
-
-  if $write_backuppath != undef {
-    if $ensure != 'absent' {
-      if (!empty($databases)) {
-        if $write_backuppath != undef {
-          $csv = join(keys($databases), ' ')
-          file { "${write_backuppath}/${$vhostname}/databases.txt":
-            content => "DATABASES='${csv}'",
-          }
-        }
-      }
-      file { "${write_backuppath}/${$vhostname}/directory.txt":
-        content => "DIRECTORY=${vhost_basedir}",
-        require => File["${write_backuppath}/${$vhostname}"],
-      }
-    }
-  }
-
-}
-
-define apache_php::tbsite::dirstructure (
-  $basedir   = undef,
-  $vhostname = undef,
-  $uid       = undef,
-  $gid       = undef,
-) {
-
-  file { ["${basedir}/${vhostname}/site", "${basedir}/${vhostname}/logs"]:
-    ensure => 'directory',
-    owner  => $uid,
-    mode   => '0751',
-    group  => $gid,
-  }
-
-  file { ["${basedir}/${vhostname}/private", "${basedir}/${vhostname}/private/bin"]:
-    ensure => 'directory',
-    owner  => $uid,
-    mode   => '0750',
-    group  => $gid,
   }
 
 }
