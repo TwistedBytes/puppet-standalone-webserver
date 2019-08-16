@@ -1,0 +1,34 @@
+<%- |
+  String  $keypath,
+  Integer  $numberkeys,
+  String  $keyfile,
+| -%>
+#!/bin/bash
+
+KEYPATH=<%= $keypath %>
+NUMBER_KEYS=<%= $numberkeys %>
+KEYFILE_NAME="<%= $keyfile %>"
+
+if [[ -f ${KEYPATH}/${KEYFILE_NAME}.enc ]]; then
+  echo "encrypted file already exists!!!, not running"
+  exit 1
+fi
+
+
+mkdir -p ${KEYPATH}
+
+for i in `seq 1 ${NUMBER_KEYS}`; do
+  echo -n $i >> ${KEYPATH}/${KEYFILE_NAME}
+  echo -n ';' >> ${KEYPATH}/${KEYFILE_NAME}
+  openssl rand -hex 32 >> ${KEYPATH}/${KEYFILE_NAME}
+
+done
+
+openssl rand -hex 128 > ${KEYPATH}/${KEYFILE_NAME}.key
+
+openssl enc -aes-256-cbc -md sha1 \
+   -pass file:${KEYPATH}/${KEYFILE_NAME}.key \
+   -in ${KEYPATH}/${KEYFILE_NAME} \
+   -out ${KEYPATH}/${KEYFILE_NAME}.enc
+
+rm -f ${KEYPATH}/${KEYFILE_NAME}

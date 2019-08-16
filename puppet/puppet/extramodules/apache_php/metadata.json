@@ -50,6 +50,9 @@
     },
     {
       "name": "puppet-nginx"
+    },
+    {
+      "name": "puppet-extlib"
     }
 
   ]

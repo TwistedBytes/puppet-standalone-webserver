@@ -1,0 +1,168 @@
+<%- if @kernel == 'Linux' -%>
+#!/bin/bash
+<%- else -%>
+#!/bin/sh
+<%- end -%>
+#
+# MySQL Backup Script
+#  Dumps mysql databases to a file for another backup tool to pick up.
+#
+# MySQL code:
+# GRANT SELECT, RELOAD, LOCK TABLES ON *.* TO 'user'@'localhost'
+# IDENTIFIED BY 'password';
+# FLUSH PRIVILEGES;
+#
+##### START CONFIG ###################################################
+
+USER=<%= @backupuser %>
+PASS='<%= @backuppassword %>'
+MAX_ALLOWED_PACKET=<%= @maxallowedpacket %>
+DIR=<%= @backupdir %>
+ROTATE=<%= [ Integer(@backuprotate) - 1, 0 ].max %>
+
+PREFIX=mysql_backup_
+
+# Create temporary mysql cnf file.
+TMPFILE=`mktemp /tmp/backup.XXXXXX` || exit 1
+echo -e "[client]\npassword=$PASS\nuser=$USER\nmax_allowed_packet=$MAX_ALLOWED_PACKET" > $TMPFILE
+
+##### STOP CONFIG ####################################################
+PATH=<%= @execpath %>
+
+[[ -d ${DIR} ]] || rm -f ${DIR}
+
+# my.cnf config:
+# server-id = 1
+# log-bin = mariadb-bin
+# binlog_format = MIXED
+# sync_binlog = 5
+#
+# GRANT SELECT, RELOAD, LOCK TABLES, SHOW VIEW, PROCESS, TRIGGER, SUPER, REPLICATION CLIENT ON *.* TO 'backup'@'localhost';
+
+CURRENTBACKUPDIR=${DIR}/active
+KEEP=<%= [ Integer(@backuprotate), 0 ].max %>
+DOFULL_BACKUP="yes"
+DOFLUSH_BACKUP="no"
+
+COMP_PROG="nice bzip2"
+command -v pbzip2 >/dev/null 2>&1 && COMP_PROG="nice pbzip2"
+
+<%- if @kernel == 'Linux' -%>
+set -o pipefail
+<%- end -%>
+
+log_bin_basename=`mysql --defaults-extra-file=$TMPFILE -N -e 'show variables where Variable_name="log_bin_basename"' | awk '{print $NF}'`
+if [ "" == "${log_bin_basename}" ]; then
+    log_bin_basename='<%= @logbinbasename %>'
+fi
+log_bin_dir=`dirname ${log_bin_basename}`
+log_bin_filebase=`basename ${log_bin_basename}`
+
+cleanup_mysql_logs() {
+    # keep 5 for slaves to keep running
+    CURLOG=`mysql --defaults-extra-file=$TMPFILE -e 'show master logs' | grep -v Log_name | tail -n 5 | head -n 1 | awk '{print $1}'`
+    mysql --defaults-extra-file=$TMPFILE -e "PURGE BINARY LOGS TO '${CURLOG}'"
+}
+
+create_newbackup_dir(){
+    local newbackupdir=${DIR}/`date +%Y%m%d_%H%M%S`
+    if [ ! -d ${newbackupdir} ]; then
+        mkdir -p ${newbackupdir}
+        rm -f ${CURRENTBACKUPDIR}
+        ln -sf ${newbackupdir} ${CURRENTBACKUPDIR}
+    fi
+}
+
+create_fulldump(){
+  CURLOG=`mysql --defaults-extra-file=$TMPFILE -e 'show master logs' | cat | tail -n 1 | awk '{print $1}'`
+  FULLDUMP_FILE=${CURRENTBACKUPDIR}/${PREFIX}binlog-${CURLOG}.sql.bz2
+  mysqldump --defaults-extra-file=$TMPFILE --opt --flush-logs --single-transaction --master-data --all-databases \
+    ${ADDITIONAL_OPTIONS} \
+    | ${COMP_PROG} -zc > ${FULLDUMP_FILE}
+}
+
+flush_logs(){
+    mysql --defaults-extra-file=$TMPFILE -e 'flush logs'
+}
+
+move_logs_tobackup(){
+    find ${log_bin_dir}/ -name "${log_bin_filebase}*" |
+        sort | head -n -2 |
+        grep -v -e index$ -e gz$ -e bz2$ |
+        while read file; do
+            filename=`basename $file`
+            ${COMP_PROG} -fqc $file > ${CURRENTBACKUPDIR}/$filename.bz2 &&
+                touch -r $file ${CURRENTBACKUPDIR}/$filename.bz2 &&
+                chmod --reference=$file ${CURRENTBACKUPDIR}/$filename.bz2 &&
+                chown --reference=$file ${CURRENTBACKUPDIR}/$filename.bz2
+        done
+    cp -af ${log_bin_dir}/${log_bin_filebase}.index ${CURRENTBACKUPDIR}/
+
+    cleanup_mysql_logs
+}
+
+clean_old_dirs(){
+    for i in `find ${DIR} -maxdepth 1 -type d -name '2*' | sort | head -n -${KEEP}`; do
+        echo cleaning ${i}
+        rm -Rf ${i}
+    done
+}
+
+while [[ $# > 0 ]]
+do
+key="$1"
+
+case $key in
+    -f|--fullbackup)
+    DOFULL_BACKUP="yes"
+    DOFLUSH_BACKUP="no"
+#     shift # past argument
+    ;;
+    -s|--flushbackup)
+    DOFULL_BACKUP="no"
+    DOFLUSH_BACKUP="yes"
+#     shift # past argument
+    ;;
+    -k|--keep)
+    KEEP="$2"
+    shift # past argument
+    ;;
+    --default)
+    DEFAULT=YES
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+shift # past argument or value
+done
+
+
+if [[ -n $1 ]]; then
+    echo "Last line of file specified as non-opt/last argument:"
+    tail -1 $1
+fi
+
+#echo DOFULL_BACKUP   = "${DOFULL_BACKUP}"
+#echo DOFLUSH_BACKUP  = "${DOFLUSH_BACKUP}"
+#echo KEEP            = "${KEEP}"
+
+if [ "${DOFULL_BACKUP}" == "yes" -o ! -h ${CURRENTBACKUPDIR} ]; then
+    create_newbackup_dir
+    create_fulldump
+    move_logs_tobackup
+    clean_old_dirs
+elif [ "${DOFLUSH_BACKUP}" == "yes" ]; then
+    flush_logs
+    move_logs_tobackup
+fi
+
+
+<% if @postscript -%>
+  <%- [@postscript].flatten.compact.each do |script|%>
+<%= script %>
+  <%- end -%>
+<% end -%>
+
+# Remove temporary file
+rm -f $TMPFILE

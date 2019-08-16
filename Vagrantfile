@@ -4,7 +4,7 @@
 # -- config section
 node_domain  = 'tbdev.xyz'
 node_name    = 'puppetstandalone'.concat('.' + node_domain)
-node_aliases = ['twistedbytes-site1', 'twistedbytes-site2'].map{|s| s.concat('.' + node_domain)}
+node_aliases = ['puppetstandalone1', 'puppetstandalone2'].map{|s| s.concat('.' + node_domain)}
 # node_aliases = [].map{|s| s.concat('.' + node_domain)}
 node_ip      = "192.168.50.120"
 node_cpus    = 2
@@ -51,7 +51,7 @@ Vagrant.configure(2) do |config|
 
     # -- provisioning section
     # node.vm.provision "shell", run: 'always', inline: '/usr/local/bin/autorun.sh'
-    node.vm.provision "shell", inline: 'time /data/puppet/scripts/initial.sh'
+    # node.vm.provision "shell", inline: 'time /data/puppet/scripts/initial.sh'
 
     # -- provisioning section
 

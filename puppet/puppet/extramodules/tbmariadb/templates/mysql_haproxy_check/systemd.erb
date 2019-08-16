@@ -1,0 +1,21 @@
+## managed by Puppet ##
+# Mysql haproxy slave check
+[Unit]
+Description=Mysql haproxy slave check
+After=syslog.target
+After=network.target
+After=mariadb.service
+
+[Service]
+Type=forking
+ExecStart=<%= @install_path %>/mysql_haproxy_check.py
+PIDFile=/var/run/mysql_haproxy_check.pid
+# Use SIGINT instead of SIGTERM so serf can depart the cluster.
+KillSignal=SIGINT
+# Restart on success, failure, and any emitted signals like HUP.
+Restart=always
+# Wait ten seconds before respawn attempts.
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

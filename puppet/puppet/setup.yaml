@@ -1,3 +1,9 @@
+classes:
+  - tbsite::packages
+  - apache_php::apache
+#  - apache_php::dbserver
+  - apache_php::sites
+
 apache_php::phpfpmvhost::pmdefaults:
   pm: ondemand
   pm_start_servers: 1
@@ -12,10 +18,18 @@ apache_php::proftpd: false
 apache_php::apachenew: true
 apache_php::phpfpmvhost::php56: false
 
+tbmariadb::repo::version: 10.3
+
+apache_php::dbserver::mysqld_options:
+  innodb_buffer_pool_size: 1000M
+  innodb_log_file_size: 125M # 1/8 of innodb_buffer_pool_size
+  tmp_table_size: 128M
+  max_heap_table_size: 128M
+
 apache_php::sites::defaults:
   options:
-    php7: 72
-    php_default: 72
+    php7: 73
+    php_default: 73
     php_default_force: true
 
 apache_php::sites::sites:

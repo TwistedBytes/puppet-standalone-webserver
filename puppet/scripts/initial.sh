@@ -8,6 +8,11 @@ yum -y install puppet-agent augeas git
 systemctl stop puppet
 systemctl disable puppet
 
+augtool << EOT1
+set /files/etc/puppetlabs/puppet/puppet.conf/main/disable_warnings deprecations
+save
+EOT1
+
 echo 'export PATH=${PATH}:/opt/puppetlabs/puppet/bin' >> /root/.bashrc
 export PATH=${PATH}:/opt/puppetlabs/puppet/bin
 
@@ -20,7 +25,7 @@ cp -f hiera.yaml /etc/puppetlabs/puppet/
 
 # this speeds up the puppet run because all/most packages are already installed
 # Puppet is not really efficient with installing many packages
-PREINSTALL=1
+PREINSTALL=0
 if [[ ${PREINSTALL} -eq 1 ]]; then
     cp ../yumrepos/*.repo /etc/yum.repos.d/ -Rvf
     yum install -y epel-release

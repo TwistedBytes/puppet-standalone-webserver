@@ -9,3 +9,7 @@ mod 'jfryman/selinux', "0.4.0"
 mod 'saz-sudo'
 
 mod 'camptocamp-systemd'
+
+mod 'puppetlabs-mysql', '10.1.0'
+mod 'puppet/extlib'
+mod 'puppet-staging', '2.2.0'

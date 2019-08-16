@@ -94,7 +94,7 @@ class apache_php::dbserver (
   if $temp_root_pw != undef {
     $root_password = $temp_root_pw
   } else {
-    $root_password = cache_data('mysql_root_pw', $root_pw_context,
+    $root_password = extlib::cache_data('mysql_root_pw', $root_pw_context,
       sha1(String(fqdn_rand(40000000000000, $password_salt))))
   }
 
@@ -161,7 +161,7 @@ class apache_php::dbserver (
     $status_password = cache_data('mysql_status_pw', $galera['clustername'],
       sha1(fqdn_rand(40000000000000, $password_salt)))
 
-    $override_options = mysql_deepmerge($mysqld_override_options, $mysqld_binlog_options,
+    $override_options = deep_merge2($mysqld_override_options, $mysqld_binlog_options,
       $override_master_slave_options, $mysqld_options, {
         binlog_format      => 'ROW',
         wsrep_cluster_name => "wsrep_${galera['clustername']}"
@@ -193,7 +193,7 @@ class apache_php::dbserver (
     class { 'mysql::server':
       root_password    => $root_password,
       override_options => {
-        'mysqld' => mysql_deepmerge($mysqld_override_options, $mysqld_binlog_options,
+        'mysqld' => deep_merge2($mysqld_override_options, $mysqld_binlog_options,
           $override_master_slave_options, $mysqld_options)
       }
       ,
@@ -246,15 +246,15 @@ class apache_php::dbserver (
   exec { "mysql-upgrade":
     command     => "mysql_upgrade --force",
     path        => "/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin",
-    require     => Service[$dbservicename],
+    require     => [Service[$dbservicename], Mysql_user["root@localhost"], File["/root/.my.cnf"]],
     refreshonly => true,
   }
 
   class { 'tbmariadb::mytop': }
 
   include ::mysql::server::account_security
-  class { '::mysql::server::mysqltuner':
-    version => '1.7.2',
+  class { '::tbmariadb::server::mysqltuner':
+    version => '1.7.13',
   }
 
   validate_hash($dbs)
