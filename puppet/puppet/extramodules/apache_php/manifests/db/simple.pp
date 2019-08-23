@@ -1,7 +1,7 @@
 define apache_php::db::simple (
   $ensure       = 'present',
   $password     = undef,
-  $tbpw_context = "${::fqdn}_mysql",
+  $tbpw_context = "${::trusted['certname']}_mysql",
   $ini_file     = undef,
   $usergrant    = undef,
   $charset      = 'utf8mb4',
@@ -28,7 +28,7 @@ define apache_php::db::simple (
     }
 
     $realpassword = $password ? {
-      undef   => tbpassword_getpassword($tbpw_context, $database_user),
+      undef   => cache_data("mysql_password/${tbpw_context}", $database_user, fqdn_rand_string(24)),
       default => $password,
     }
 

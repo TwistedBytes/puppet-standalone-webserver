@@ -56,7 +56,7 @@ define apache_php::site (
   $real_user_hash = $user_hash
 
   $vhost_basedir = $vhostbasedir ? {
-    undef   => "${customerhash['homedir']}/${vhostname}",
+    undef   => "${vhost_parentdir}/${vhostname}",
     default => $vhostbasedir,
   }
 
@@ -276,8 +276,19 @@ define apache_php::site (
         phpfpmsocket => $cli_socket,
         tmpdir       => "${vhost_basedir}/private/php-tmp",
         uid          => $vhost_username,
-        gid          => $customerhash['username'],
+        gid          => $vhost_usergroup,
       }
+    }
+
+    tbuser::shellconfig { $vhost_username:
+      ensure  => $ensure,
+      homedir => "${vhost_basedir}",
+      owner   => $vhost_username,
+      group   => $vhost_usergroup,
+      require => Apache_php::User["$vhostname"]
+    }
+    User <| title == $vhost_username |> {
+      shell => $shell,
     }
   }
 
@@ -290,7 +301,7 @@ define apache_php::site (
 
         concat { $database_ini:
           owner  => $vhost_username,
-          group  => $customerhash['username'],
+          group  => $vhost_usergroup,
           mode   => '0400',
           ensure => $ensure,
         }

@@ -39,12 +39,12 @@ define apache_php::user (
     default => $shell,
   }
 
-    $real_user_hash = $user_hash ? {
-      # undef   => tbpassword_getpassline("${::fqdn}-system", $username),
-      undef   => '!!',
-      'keep'  => undef,
-      default => $user_hash,
-    }
+  $real_user_hash = $user_hash ? {
+    # undef   => tbpassword_getpassline("${::fqdn}-system", $username),
+    undef   => '!!',
+    'keep'  => undef,
+    default => $user_hash,
+  }
 
   $user_comment_hiera = hiera('apache_php::user::comment', "${username} on ${::fqdn}")
   $user_comment = $user_comment_hiera ? {

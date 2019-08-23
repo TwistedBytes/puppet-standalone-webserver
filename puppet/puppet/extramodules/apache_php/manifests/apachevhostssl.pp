@@ -70,8 +70,8 @@ define apache_php::apachevhostssl (
   } else {
     $vhostSSL2 = {
       ssl_key   => $ssl['ssl-key'],
-      ssl_cert  => $ssl['ssl-pem'],
-      ssl_chain => $ssl['ssl-pem'],
+      ssl_cert  => $ssl['ssl-crt'],
+      ssl_chain => $ssl['ssl-chain'],
     }
   }
 

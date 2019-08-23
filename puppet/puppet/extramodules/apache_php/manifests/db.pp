@@ -17,7 +17,7 @@ define apache_php::db (
 
 
   $realpassword = $password ? {
-    undef   => tbpassword_getpassword("${::fqdn}_mysql", $user),
+    undef   => tbpassword_getpassword("${::trusted['certname']}_mysql", $user),
     default => $password,
   }
 

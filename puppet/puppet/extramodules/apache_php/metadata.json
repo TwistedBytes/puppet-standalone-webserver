@@ -53,6 +53,9 @@
     },
     {
       "name": "puppet-extlib"
+    },
+    {
+      "name": "twistedbytes-tbuser"
     }
 
   ]
