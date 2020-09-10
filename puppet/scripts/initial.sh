@@ -56,7 +56,6 @@ if [[ ${PREINSTALL} -eq 1 ]]; then
     else
       downloadPuppetModules
     fi
-
 else
     downloadPuppetModules
     rm -Rf .librarian .tmp
@@ -65,6 +64,8 @@ else
 fi
 
 ${_MYDIR}/runpuppet.sh
+
+${_MYDIR}/copy_root_authorizedkeys.sh
 
 if [[ 0 -eq 1 ]]; then
 
