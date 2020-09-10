@@ -8,6 +8,7 @@ define apache_php::site (
   $user_hash              = undef,
   $user_hash_tbpw_context = undef,
   $user_ssh_keys          = undef,
+  $user_ssh_purge         = undef,
   $user_ssh_keys_extra    = [],
   $fcgi_port              = undef,
   $databases              = {},
@@ -67,6 +68,7 @@ define apache_php::site (
     gid                 => $vhost_usergroup,
     uid                 => $uid,
     user_hash           => $real_user_hash,
+    user_ssh_purge      => $user_ssh_purge,
     user_ssh_keys       => $user_ssh_keys,
     user_ssh_keys_extra => $user_ssh_keys_extra,
     convert_proftpd     => $convert_proftpd,
@@ -103,7 +105,7 @@ define apache_php::site (
       require ::tbphp::php7X::phpswitcher
 
       case $php7 {
-        /^\d+$/, 70, 71, 72, 73: {
+        /^\d+$/, 70, 71, 72, 73, 74: {
           $php7version = $php7
         }
         true: {
@@ -140,7 +142,7 @@ define apache_php::site (
       $php_default_force = pick($options['php_default_force'], false)
 
       case $php_default_version {
-        /^\d+$/, 70, 71, 72, 73: {
+        /^\d+$/, 70, 71, 72, 73, 74: {
           $fcgi_listen_sock = "/var/opt/remi/php${php_default_version}/run/php-fpm/${vhostname}.sock"
           $userbin_link = "/usr/bin/php${php_default_version}"
         }

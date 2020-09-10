@@ -9,7 +9,7 @@ apache_php::proftpd: false
 apache_php::apachenew: true
 apache_php::phpfpmvhost::php56: false
 
-tbmariadb::repo::version: 10.3
+tbmariadb::repo::version: 10.4
 
 apache_php::phpfpmvhost::pmdefaults:
   pm: dynamic
@@ -28,14 +28,15 @@ apache_php::dbserver::mysqld_options:
 
 apache_php::sites::defaults:
   ssh_login: true
+  user_ssh_purge: false
   user_hash: keep
   vhostparentdir: /var/www/vhosts
   php_values_override:
     php_flag:
       short_open_tag: on
   options:
-    php7: 73
-    php_default: 73
+    php7: 74
+    php_default: 74
     php_default_force: true
 
 apache_php::sites::sites:

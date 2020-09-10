@@ -81,7 +81,7 @@ define apache_php::phpfpmvhost (
 
   if ($php7) {
     case $php7 {
-      /^\d+$/, 70, 71, 72, 73: {
+      /^\d+$/, 70, 71, 72, 73, 74: {
         $php7version = $php7
       }
       true: {

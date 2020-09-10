@@ -27,14 +27,14 @@ class tbphp::php7::phpfpm (
 
   }
 
-  php::config::setting { "${package_prefix}expose_php":
+  tbphp::config::setting { "${package_prefix}expose_php":
     key     => 'PHP/expose_php',
     file    => "${$etc_prefix}/php.ini",
     value   => 'Off',
     require => Package["${package_prefix}php-common"],
   }
 
-  php::config::setting { "${package_prefix}php_timezone":
+  tbphp::config::setting { "${package_prefix}php_timezone":
     file    => "${$etc_prefix}/php.d/05-timezone.ini",
     key     => 'date.timezone',
     value   => $timezone,

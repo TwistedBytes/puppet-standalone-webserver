@@ -2,6 +2,16 @@
 
 _MYDIR=$( dirname "$0" )
 
+function downloadPuppetModules(){
+  cd ${_MYDIR}/../puppet
+
+  /opt/puppetlabs/puppet/bin/gem install -q --silent r10k librarian-puppet
+  librarian-puppet clean
+  librarian-puppet install
+
+  cd -
+}
+
 rpm -ih https://yum.puppet.com/puppet6/puppet-release-el-7.noarch.rpm
 yum -y install puppet-agent augeas git
 
@@ -22,13 +32,13 @@ mkdir -p /etc/puppetlabs/code/hieradata/
 
 # this speeds up the puppet run because all/most packages are already installed
 # Puppet is not really efficient with installing many packages
-PREINSTALL=0
+PREINSTALL=1
 if [[ ${PREINSTALL} -eq 1 ]]; then
     cp ../yumrepos/*.repo /etc/yum.repos.d/ -Rvf
     yum install -y epel-release
     yum install -y ncdu telnet unzip sysstat htop lsof vim policycoreutils-devel httpd mod_ssl yum-plugin-priorities psmisc nano wget bzip2 mailx
 
-    PHP_VERSION='php73'
+    PHP_VERSION='php74'
     PHP7_PREFIX="${PHP_VERSION}-"
 
     for i in php-pear php-odbc php-soap php-common php-cli php-xmlrpc php-dba   \
@@ -40,13 +50,15 @@ if [[ ${PREINSTALL} -eq 1 ]]; then
         echo ${PHP7_PREFIX}${i}
     done | xargs yum -y install
 
-    rm -Rf modules .librarian .tmp
-    tar xzf modules.tgz
+    if [[ -f modules.tgz ]]; then
+      rm -Rf modules .librarian .tmp
+      tar xzf modules.tgz
+    else
+      downloadPuppetModules
+    fi
 
 else
-    /opt/puppetlabs/puppet/bin/gem install -q --silent r10k librarian-puppet
-    librarian-puppet clean
-    librarian-puppet install
+    downloadPuppetModules
     rm -Rf .librarian .tmp
     rm -Rf modules.tgz
     tar zfc modules.tgz modules

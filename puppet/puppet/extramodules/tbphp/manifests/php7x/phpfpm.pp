@@ -25,14 +25,14 @@ define tbphp::php7x::phpfpm (
     tbphp::php7x::service {$phpversion:}
   }
 
-  php::config::setting { "${package_prefix}expose_php":
+  tbphp::config::setting { "${package_prefix}expose_php":
     key     => 'PHP/expose_php',
     file    => "${etc_prefix}/php.ini",
     value   => 'Off',
     require => Package["${package_prefix}php-common"],
   } ~> Tbphp::Php7x::Service[$phpversion]
 
-  php::config::setting { "${package_prefix}php_timezone":
+  tbphp::config::setting { "${package_prefix}php_timezone":
     file    => "${etc_prefix}/php.d/05-timezone.ini",
     key     => 'date.timezone',
     value   => $timezone,

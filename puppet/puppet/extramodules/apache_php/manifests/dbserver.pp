@@ -18,8 +18,14 @@ class apache_php::dbserver (
 
   case $mysqltype {
     'mariadb': {
+      require ::tbmariadb::repo
+
       $mysqlname = 'mariadb'
-      $dbservicename = 'mysql'
+      if ( versioncmp("${::tbmariadb::repo::version}", '10.3') >= 0 ) {
+        $dbservicename = 'mariadb'
+      } else {
+        $dbservicename = 'mysql'
+      }
 
       $dbuser = 'mysql'
       $dbgroup = 'mysql'

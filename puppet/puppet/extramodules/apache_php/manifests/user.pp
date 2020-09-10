@@ -15,6 +15,7 @@ define apache_php::user (
   $shell               = undef,
   $user_hash           = undef,
   $user_ssh_keys       = undef,
+  $user_ssh_purge      = true,
   $user_ssh_keys_extra = [],
   $create_ssh_key      = false,
   $convert_proftpd     = true,
@@ -62,7 +63,7 @@ define apache_php::user (
     expiry         => absent,
     managehome     => false,
     password       => $real_user_hash,
-    purge_ssh_keys => true,
+    purge_ssh_keys => $user_ssh_purge,
     require        => Group[$my_gid],
   }
 
