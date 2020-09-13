@@ -8,8 +8,8 @@ function downloadPuppetModules(){
   cd ${_MYDIR}/../puppet
 
   /opt/puppetlabs/puppet/bin/gem install -q --silent r10k librarian-puppet
-  librarian-puppet clean
-  librarian-puppet install
+  /opt/puppetlabs/puppet/bin/librarian-puppet clean
+  /opt/puppetlabs/puppet/bin/librarian-puppet install
 
   cd -
 }
@@ -27,8 +27,6 @@ EOT1
 
 echo 'export PATH=${PATH}:/opt/puppetlabs/puppet/bin' >> /root/.bashrc
 export PATH=${PATH}:/opt/puppetlabs/puppet/bin
-
-cd ${_MYDIR}/../puppet
 
 mkdir -p /etc/puppetlabs/code/hieradata/
 
@@ -51,18 +49,10 @@ if [[ ${PREINSTALL} -eq 1 ]]; then
 
         echo ${PHP7_PREFIX}${i}
     done | xargs yum -y install
+fi
 
-    if [[ -f modules.tgz ]]; then
-      rm -Rf modules .librarian .tmp
-      tar xzf modules.tgz
-    else
-      downloadPuppetModules
-    fi
-else
-    downloadPuppetModules
-    rm -Rf .librarian .tmp
-    rm -Rf modules.tgz
-    tar zfc modules.tgz modules
+if [[ ! -d modules ]]; then
+  downloadPuppetModules
 fi
 
 ${_MYDIR}/runpuppet.sh
