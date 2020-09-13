@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_MYDIR=$( dirname "$0" )
+_MYDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd ${_MYDIR}/../puppet
 
