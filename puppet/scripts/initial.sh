@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 _MYDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 function downloadPuppetModules(){
@@ -32,7 +34,7 @@ mkdir -p /etc/puppetlabs/code/hieradata/
 
 # this speeds up the puppet run because all/most packages are already installed
 # Puppet is not really efficient with installing many packages
-PREINSTALL=1
+PREINSTALL=0
 if [[ ${PREINSTALL} -eq 1 ]]; then
     cp ../yumrepos/*.repo /etc/yum.repos.d/ -Rvf
     yum install -y epel-release
