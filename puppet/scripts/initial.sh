@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -x
+set -e
 
 _MYDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
@@ -25,8 +26,7 @@ set /files/etc/puppetlabs/puppet/puppet.conf/main/disable_warnings deprecations
 save
 EOT1
 
-echo 'export PATH=${PATH}:/opt/puppetlabs/puppet/bin' >> /root/.bashrc
-export PATH=${PATH}:/opt/puppetlabs/puppet/bin
+. /etc/profile.d/puppet-agent.sh
 
 mkdir -p /etc/puppetlabs/code/hieradata/
 
@@ -59,7 +59,7 @@ ${_MYDIR}/runpuppet.sh
 
 ${_MYDIR}/copy_root_authorizedkeys.sh
 
-if [[ 0 -eq 1 ]]; then
+if [[ 1 -eq 1 ]]; then
 
 cat << 'EOT' > /var/www/vhosts/default/site/docroot/index.php
 <?php
