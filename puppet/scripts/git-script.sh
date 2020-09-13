@@ -1,8 +1,11 @@
-$!/bin/bash
+#!/bin/bash
 
 set -x
 
 yum install -y git
+
+# needed for some environments
+export HOME="/root"
 
 cd ~
 git clone https://github.com/TwistedBytes/puppet-standalone-webserver.git puppet-install

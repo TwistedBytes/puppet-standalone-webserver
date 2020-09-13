@@ -3,6 +3,7 @@ classes:
   - apache_php::apache
   - apache_php::dbserver
   - apache_php::sites
+  - tbtools::filldbinfo
 
 apache_php::proftpd: false
 

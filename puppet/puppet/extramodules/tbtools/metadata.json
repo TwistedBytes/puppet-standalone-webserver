@@ -1,0 +1,33 @@
+{
+  "name": "twistedbytes-tbtools",
+  "version": "0.1.0",
+  "author": "twistedbytes",
+  "summary": null,
+  "license": "Apache 2.0",
+  "source": "",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {
+      "name": "twistedbytes-tbcron"
+    },
+    {
+      "name": "twistedbytes-site"
+    },
+    {
+      "name": "puppetlabs-stdlib"
+    },
+    {
+      "name": "thias-sysctl"
+    },
+    {
+      "name": "puppetlabs-postgresql"
+    },
+    {
+      "name": "twistedbytes-tbpassword"
+    },
+    {
+      "name": "puppet-rabbitmq"
+    }
+  ]
+}
