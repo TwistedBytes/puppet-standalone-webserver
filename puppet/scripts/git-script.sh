@@ -17,3 +17,6 @@ firewall-cmd --zone=public --add-service=http
 
 firewall-cmd --zone=public --add-service=https --permanent
 firewall-cmd --zone=public --add-service=https
+
+firewall-cmd --zone=public --add-service=ssh --permanent
+firewall-cmd --zone=public --add-service=ssh

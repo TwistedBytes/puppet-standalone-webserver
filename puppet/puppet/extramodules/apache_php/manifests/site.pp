@@ -223,6 +223,7 @@ define apache_php::site (
         followsymlinks     => $followsymlinks,
         proxy_timeout      => $phpproxytimout,
         docroot_mode       => pick($options['docroot_mode'], '0755'),
+        docroot_name       => pick_default($options['docroot_name'], 'site/docroot'),
         log_format_name    => $log_format_name,
         custom             => $custom,
         replace_config_var => $replace_config_var,
