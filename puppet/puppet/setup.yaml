@@ -39,7 +39,8 @@ apache_php::sites::defaults:
     php7: 74
     php_default: 74
     php_default_force: true
-    docroot_name: site/current/public
+    docroot_symlink: true
+    link_to: site/current/public
 
 apache_php::sites::sites:
   default:
