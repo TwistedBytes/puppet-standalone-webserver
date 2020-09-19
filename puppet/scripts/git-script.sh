@@ -1,7 +1,3 @@
-#!/bin/bash
-
-set -x
-
 yum install -y git
 
 # needed for some environments
